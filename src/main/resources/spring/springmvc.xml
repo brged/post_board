@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- 配置@controller扫描包 -->
+	<context:component-scan base-package="com.postboard.web.controller" />
+	
+	<!-- 配置注解驱动，相当于同时使用最新处理器映射跟处理器适配器,对json数据响应提供支持 -->
+	<mvc:annotation-driven conversion-service="myConvert" />
+	
+	<bean id="myConvert" class="org.springframework.format.support.FormattingConversionServiceFactoryBean" >
+		<property name="converters">
+			<set>
+				<bean class="com.postboard.utils.DateConvert" />
+			</set>
+		</property>
+	</bean>
+	
+	<!-- 配置视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"/>
+		<property name="suffix" value=".jsp"/>
+	</bean>
+	
+	<!-- 配置静态资源映射  -->
+	<!-- location:指定下的所有的静态资源包括子目录下的静态资源  都不被拦截-->
+	<!-- mapping:表示访问静态资源的路径的形式    可以访问 /js/下的静态资源或者所有的子目录下的静态资源-->
+	<mvc:resources location="/ui/js/" mapping="/js/**"/>
+	<mvc:resources location="/ui/css/" mapping="/css/**"/>
+	<mvc:resources location="/ui/fonts/" mapping="/fonts/**"/>
+	<mvc:resources location="/ui/kindeditor/" mapping="/kindeditor/**"/>
+	<mvc:resources location="/ui/sb-admin-2/" mapping="/sb-admin-2/**"/>
+	
+	<!-- 配置异常解析器 -->
+	<!-- <bean class="com.itheima.springmvc.exception.CustomerExceptionResolver"/> -->
+	
+	<!-- 多部件解析器 -->
+	<!-- <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8"/>
+		<property name="maxUploadSize" value="2097152"/>
+	</bean> -->
+	
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/post/toEditPost"/>
+			<mvc:mapping path="/post/toEditPost/*"/>
+			<mvc:mapping path="/post/editPost"/>
+			<mvc:mapping path="/post/deletePost"/>
+			<mvc:mapping path="/comment/addComment"/>
+			<bean class="com.postboard.web.interceptor.LoginInterceptor"/>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/post/toEditPost"/>
+			<mvc:mapping path="/post/toEditPost/*"/>
+			<mvc:mapping path="/post/editPost"/>
+			<mvc:mapping path="/comment/addComment"/>
+			<bean class="com.postboard.web.interceptor.UserStateInterceptor"/>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/admin/*"/>
+			<bean class="com.postboard.web.interceptor.admin.LoginInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+</beans>

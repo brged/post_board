@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+        
+   <!-- 加载配置文件 -->
+   <context:property-placeholder location="classpath:jdbc.properties" />
+
+	<!-- 数据库连接池 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- 连接池的最大数据库连接数 -->
+		<property name="maxTotal" value="${jdbc.maxTotal}" />
+		<!-- 最大空闲数 -->
+		<property name="maxIdle" value="${jdbc.maxIdle}" />
+		<!-- 初始化连接数 -->
+		<property name="initialSize" value="${jdbc.initialSize}" />
+	</bean>
+	
+	<!-- SqlSessionFactory配置 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 加载mybatis核心配置文件 -->
+		<property name="configLocation" value="classpath:sqlMapConfig.xml" />
+		<!-- 别名包扫扫描 -->
+		<property name="typeAliasesPackage" value="com.postboard.pojo" />
+	</bean>
+	
+	<!-- 动态代理，第二种方式：包扫描（推荐） -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    	<!-- basePackage多个包用","分隔 -->
+    	<property name="basePackage" value="com.postboard.mapper" />
+    </bean>
+</beans>
